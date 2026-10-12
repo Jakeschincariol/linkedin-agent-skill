@@ -24,6 +24,9 @@ Usage
   pbpaste | python3 humanize.py - --report
   python3 humanize.py draft.txt --json
   python3 humanize.py draft.txt -o clean.txt
+  python3 humanize.py brouillon.txt --lang fr      # French lexicon (slop.fr.json)
+
+--lang auto (default) picks slop.fr.json when the text reads as French.
 """
 
 import argparse
@@ -38,6 +41,25 @@ LEX = os.path.join(HERE, "slop.json")
 
 URL_RE = re.compile(r"https?://\S+|www\.\S+|\S+@\S+\.\S+")
 SENT_RE = re.compile(r"[^.!?\n]+[.!?]*")
+
+
+LEX_FR = os.path.join(HERE, "slop.fr.json")
+ABBREV = {"etc", "cf", "vs", "ex", "env", "approx", "resp"}
+FR_WORDS = re.compile(r"\b(?:le|la|les|des|une|est|pas|que|qui|pour|avec|dans|sur|je|nous|vous|ce|cette|mais|très)\b", re.IGNORECASE)
+EN_WORDS = re.compile(r"\b(?:the|and|is|are|to|of|that|with|for|you|it|this|but|very|was)\b", re.IGNORECASE)
+
+
+def detect_lang(text):
+    """'fr' when French function words outnumber English ones, else 'en'."""
+    return "fr" if len(FR_WORDS.findall(text)) > len(EN_WORDS.findall(text)) else "en"
+
+
+def lexicon_path(text, lang="auto", override=None):
+    if override:
+        return override
+    if lang == "auto":
+        lang = detect_lang(text)
+    return LEX_FR if lang == "fr" and os.path.exists(LEX_FR) else LEX
 
 
 def load_lexicon(path=LEX):
@@ -144,8 +166,19 @@ def pass_lexical(text, lex):
     # Clean up after deletions.
     text = re.sub(r"[ \t]{2,}", " ", text)
     text = re.sub(r"(?m)^[ \t]*([,.;:])\s*", "", text)
-    text = re.sub(r"\s+([,.;:!?])", r"\1", text)
+    # French keeps a space before ; : ! ? - only commas and full stops collapse.
+    punct = r"\s+([,.])" if lex.get("lang") == "fr" else r"\s+([,.;:!?])"
+    text = re.sub(punct, r"\1", text)
     text = re.sub(r"(?m)^[ \t]+$", "", text)
+    # A deletion at the start of a sentence leaves " word": trim and recapitalise.
+    text = re.sub(r"(?m)^[ \t]+(?=\S)", "", text)
+    def recap(m):
+        prev = (m.group(2) or "").lower()
+        if m.group(1) and (len(prev) <= 2 or prev in ABBREV):
+            return m.group(0)                       # "e.g. here", "etc. et" stay as they are
+        return m.group(1) + m.group(3).upper()
+    text = re.sub(r"(?m)(?:^|(?<=\b)((\w+)[.!?][ \t]+))([a-zà-öø-ÿ])",
+                  lambda m: recap(m) if m.group(1) else m.group(3).upper(), text)
     text = re.sub(r"\n{3,}", "\n\n", text)
     # An em dash that became a comma, followed by a sentence connective, leaves
     # a splice ("is important, also, it's proof"). Promote it to a full stop.
@@ -233,11 +266,16 @@ def main():
     ap.add_argument("-o", "--out", help="write cleaned text here instead of stdout")
     ap.add_argument("--report", action="store_true", help="print what changed, to stderr")
     ap.add_argument("--json", action="store_true", help="emit {text, report} as JSON")
-    ap.add_argument("--lexicon", default=LEX, help="path to slop.json")
+    ap.add_argument("--lexicon", default=None, help="path to a lexicon (overrides --lang)")
+    ap.add_argument("--lang", choices=["auto", "en", "fr"], default="auto",
+                    help="auto picks slop.fr.json for French text")
     args = ap.parse_args()
+    for stream in (sys.stdout, sys.stderr):        # Windows consoles default to cp1252
+        if hasattr(stream, "reconfigure"):
+            stream.reconfigure(encoding="utf-8")
 
     raw = sys.stdin.read() if args.input == "-" else open(args.input, encoding="utf-8").read()
-    lex = load_lexicon(args.lexicon)
+    lex = load_lexicon(lexicon_path(raw, args.lang, args.lexicon))
     clean, report = humanize(raw, lex)
 
     if args.json:

@@ -25,6 +25,16 @@ plain-English replacements, 17 invisible character classes, 11 typographic
 substitutions, and 11 structural tells. It is meant to be edited. If the user
 has a word they always use that the lexicon strips, remove it from the file.
 
+**French drafts.** Both tools take `--lang auto|en|fr` (default `auto`). On
+French text they switch to `slop.fr.json`: French stock words and openers
+("dans un monde en constante évolution", "tirer parti de", "crucial(e)",
+"véritable"), French structural tells ("Ce n'est pas juste X, c'est Y",
+"Non seulement X mais aussi Y", "Et vous, qu'en pensez-vous ?"), and French
+voice markers in `detect.py`, since elisions like `j'` or `l'` are grammar,
+not a sign of a human. The space French puts before `; : ! ?` is kept. For a
+language that is neither English nor French, say the lexicon does not cover
+it and rewrite the tells by hand.
+
 ## What gets fixed automatically
 
 **1. Invisible characters.** Zero-width spaces and joiners, word joiners,

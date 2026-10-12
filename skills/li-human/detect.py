@@ -19,6 +19,7 @@ Usage
   pbpaste | python3 detect.py -
   python3 detect.py draft.txt --json
   python3 detect.py before.txt after.txt      # compare two drafts
+  python3 detect.py brouillon.txt --lang fr   # French lexicon and voice markers
 """
 
 import argparse
@@ -32,12 +33,25 @@ import unicodedata
 HERE = os.path.dirname(os.path.abspath(__file__))
 LEX = os.path.join(HERE, "slop.json")
 
+LEX_FR = os.path.join(HERE, "slop.fr.json")
+
 SENT_RE = re.compile(r"[^.!?\n]+[.!?]*")
-WORD_RE = re.compile(r"[A-Za-z']+")
+WORD_RE = re.compile(r"[A-Za-zÀ-ÖØ-öø-ÿŒœ']+")
 CONTRACTIONS = re.compile(r"\b\w+'(?:s|t|re|ve|ll|d|m)\b", re.IGNORECASE)
 PRONOUNS = re.compile(r"\b(i|me|my|mine|we|us|our|you|your)\b", re.IGNORECASE)
-NUMBERS = re.compile(r"\b\d[\d,.]*%?\b|\$\d")
-PROPER = re.compile(r"(?<![.!?]\s)(?<!^)\b[A-Z][a-z]{2,}\b", re.MULTILINE)
+NUMBERS = re.compile(r"\b\d[\d,.]*\s?%|\b\d[\d,.]*\b|\$\d|\d\s?€")
+PROPER = re.compile(r"(?<![.!?]\s)(?<!^)\b[A-ZÀ-ÖØ-Þ][a-zà-öø-ÿ]{2,}\b", re.MULTILINE)
+# French: elisions are mandatory grammar, not a voice signal. Spoken markers
+# (on, ça, du coup, bref...) play the role contractions play in English.
+CONTRACTIONS_FR = re.compile(r"\b(?:on|ça|bref|du coup|genre|perso|franchement|en vrai|y a)\b", re.IGNORECASE)
+PRONOUNS_FR = re.compile(r"\b(?:je|moi|mon|ma|mes|nous|notre|nos|vous|votre|vos|tu|toi|ton|ta|tes|on)\b|\b[jm]'", re.IGNORECASE)
+FR_WORDS = re.compile(r"\b(?:le|la|les|des|une|est|pas|que|qui|pour|avec|dans|sur|je|nous|vous|ce|cette|mais|très)\b", re.IGNORECASE)
+EN_WORDS = re.compile(r"\b(?:the|and|is|are|to|of|that|with|for|you|it|this|but|very|was)\b", re.IGNORECASE)
+
+
+def detect_lang(text):
+    """'fr' when French function words outnumber English ones, else 'en'."""
+    return "fr" if len(FR_WORDS.findall(text)) > len(EN_WORDS.findall(text)) else "en"
 
 
 def clamp(n):
@@ -124,8 +138,9 @@ def check_voice(text, lex):
     if len(w) < 25:
         return 50.0, "too short to judge"
     per100 = 100 / len(w)
-    contractions = len(CONTRACTIONS.findall(text)) * per100
-    person = len(PRONOUNS.findall(text)) * per100
+    fr = lex.get("lang") == "fr"
+    contractions = len((CONTRACTIONS_FR if fr else CONTRACTIONS).findall(text)) * per100
+    person = len((PRONOUNS_FR if fr else PRONOUNS).findall(text)) * per100
     tells = 0
     names = []
     for s in lex["structures"]:
@@ -144,7 +159,7 @@ def check_voice(text, lex):
     if uniform:
         score -= 12
         names.append("uniform-bullets")
-    detail = (f"{contractions:.1f} contractions, {person:.1f} personal pronouns "
+    detail = (f"{contractions:.1f} {'spoken markers' if fr else 'contractions'}, {person:.1f} personal pronouns "
               f"per 100 words, {tells} structural tell(s)")
     if names:
         detail += " [" + ", ".join(names[:4]) + "]"
@@ -195,15 +210,21 @@ def main():
     ap.add_argument("input", nargs="?", default="-", help="file, or - for stdin")
     ap.add_argument("compare", nargs="?", help="second file, to show before/after")
     ap.add_argument("--json", action="store_true")
-    ap.add_argument("--lexicon", default=LEX)
+    ap.add_argument("--lexicon", default=None, help="path to a lexicon (overrides --lang)")
+    ap.add_argument("--lang", choices=["auto", "en", "fr"], default="auto",
+                    help="auto picks slop.fr.json for French text")
     args = ap.parse_args()
+    if hasattr(sys.stdout, "reconfigure"):          # Windows consoles default to cp1252
+        sys.stdout.reconfigure(encoding="utf-8")
 
-    lex = json.load(open(args.lexicon, encoding="utf-8"))
     read = lambda p: sys.stdin.read() if p == "-" else open(p, encoding="utf-8").read()
-
     targets = [(args.input, read(args.input))]
     if args.compare:
         targets.append((args.compare, read(args.compare)))
+
+    lang = detect_lang(targets[0][1]) if args.lang == "auto" else args.lang
+    path = args.lexicon or (LEX_FR if lang == "fr" and os.path.exists(LEX_FR) else LEX)
+    lex = json.load(open(path, encoding="utf-8"))
 
     payload = []
     for name, text in targets:

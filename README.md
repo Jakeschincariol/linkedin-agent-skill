@@ -89,6 +89,10 @@ python3 detect.py before.txt after.txt       # prove the delta
   today's fast-paced world", "let that sink in" - with capitalisation preserved
   and URLs untouched. It lives in
   [`slop.json`](skills/li-human/slop.json) and it is meant to be edited.
+- **French.** French drafts are detected automatically (`--lang auto|en|fr`)
+  and cleaned against [`slop.fr.json`](skills/li-human/slop.fr.json): 88
+  words and phrases, 14 structural tells, French voice markers, and the space
+  before `; : ! ?` left alone.
 
 **What gets flagged instead of fixed:** "It's not just X, it's Y", rule-of-three
 triads, one-word rhetorical questions, hashtag walls, reflex engagement bait,
