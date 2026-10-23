@@ -16,9 +16,11 @@ posted it.
 
 ## Before you write
 
-1. Read `~/.claude/linkedin/voice.md` if it exists. That file is the user's
-   voice profile: how they talk, what they never say, who they are talking to.
-   If it does not exist, ask for **three of their own past posts**, infer the
+1. Read the user's voice profile. Check these paths in order and use the
+   first one found: `~/.claude/linkedin/voice.md`,
+   `~/.gemini/linkedin/voice.md`, `~/.config/opencode/linkedin/voice.md`.
+   That file is how they talk, what they never say, who they are talking to.
+   If none exists, ask for **three of their own past posts**, infer the
    voice from those, and write the file. Do not skip this and do not invent a
    voice. A post in the wrong voice is worse than no post.
 2. Read `hooks.json` in this folder. All 21 formulas, with templates, filled
@@ -53,9 +55,9 @@ ship and why, in one sentence.
 
 **2. Draft the full post** on the strongest hook.
 
-**3. Humanize it.** Run the draft through `/li-human` before showing it. Every
-post from this skill ships humanized. That is not an optional extra step, it
-is the reason the draft is worth reading.
+**3. Humanize it.** Run the draft through the `li-human` skill before showing
+it. Every post from this skill ships humanized. That is not an optional extra
+step, it is the reason the draft is worth reading.
 
 **4. Print the block.** Copy-ready, in a fenced block, exactly as it should be
 pasted. Then, underneath:
@@ -71,8 +73,10 @@ Reply "yes" to log it, or tell me what to change.
 ```
 
 **5. Never publish.** This skill produces text. The user posts it. On "yes",
-append the post to `~/.claude/linkedin/log.md` with the date, the hook used
-and the first line, so `/li-audit` has a history to work from later.
+append the post to the log file (check in order: `~/.claude/linkedin/log.md`,
+`~/.gemini/linkedin/log.md`, `~/.config/opencode/linkedin/log.md`) with the
+date, the hook used and the first line, so the `li-audit` skill has a history
+to work from later.
 
 ## Rules that make the difference
 

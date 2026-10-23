@@ -1,12 +1,18 @@
 # voice.md
 
-Copy this to `~/.claude/linkedin/voice.md` and fill it in. Every skill in the
+Copy this to your agent's config directory and fill it in. Every skill in the
 pack reads it. Ten minutes here is the difference between drafts you post and
 drafts you rewrite.
 
+**Where to put it (use the first that matches your setup):**
+
+- **Claude Code:** `~/.claude/linkedin/voice.md`
+- **Antigravity:** `~/.gemini/linkedin/voice.md`
+- **OpenCode:** `~/.config/opencode/linkedin/voice.md`
+
 If you would rather not fill it in by hand, paste three of your own posts into
-Claude and say "write my voice.md from these". That works better than guessing
-at the answers.
+your agent and say "write my voice.md from these". That works better than
+guessing at the answers.
 
 ---
 

@@ -22,8 +22,10 @@ Ask for whichever the user has:
 - Or just the posts and their reaction counts, which is enough for a first
   pass.
 
-Also read `~/.claude/linkedin/log.md` if it exists, since it records which
-hook formula each post used.
+Also read the post log if it exists (check in order:
+`~/.claude/linkedin/log.md`, `~/.gemini/linkedin/log.md`,
+`~/.config/opencode/linkedin/log.md`), since it records which hook formula
+each post used.
 
 ## What to actually measure
 
@@ -84,5 +86,5 @@ STOP: listicles about tools.
 DO MORE: the ones with a cost you paid, and a number.
 ```
 
-Then hand the conclusions to `/li-plan` so next week's plan is built on the
-user's own evidence rather than on defaults.
+Then hand the conclusions to the `li-plan` skill so next week's plan is built
+on the user's own evidence rather than on defaults.

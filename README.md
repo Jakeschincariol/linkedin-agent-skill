@@ -1,7 +1,8 @@
 # The LinkedIn agent skill
 
-Eleven Claude skills that run a LinkedIn account. Free, MIT, no signup, no API
-key, nothing to connect.
+Eleven AI agent skills that run a LinkedIn account. Works with **Claude Code**,
+**Antigravity**, and **OpenCode**. Free, MIT, no signup, no API key, nothing
+to connect.
 
 One of them writes your posts off 21 hook formulas. One comments on other
 people's posts. One handles the replies under yours. One scores your profile
@@ -17,15 +18,28 @@ before you ever see it.
 
 ## Install
 
+### Quick install (any platform)
+
+```bash
+git clone https://github.com/Jakeschincariol/linkedin-agent-skill.git
+cd linkedin-agent-skill
+./install.sh
+```
+
+The install script auto-detects which platforms you have (Claude Code,
+Antigravity, OpenCode) and copies the skills to the right config directories.
+
+### Claude Code
+
 Paste this into Claude:
 
 ```
 https://github.com/Jakeschincariol/linkedin-agent-skill
 
-Install this skill, then confirm /li-post works.
+Install this skill, then confirm li-post works.
 ```
 
-Or do it yourself, in Claude Code:
+Or manually:
 
 ```bash
 git clone https://github.com/Jakeschincariol/linkedin-agent-skill.git
@@ -42,32 +56,75 @@ Or as a plugin:
 Project-local instead of global: copy the same folders into your repo's
 `.claude/skills/`. No Claude Code at all? Paste any single `SKILL.md` at the
 top of a chat and it runs as a mode - you lose the two Python tools, which is
-most of the point of `/li-human`, but the rest works.
+most of the point of `li-human`, but the rest works.
 
-Then spend ten minutes on `templates/voice.md`. Copy it to
-`~/.claude/linkedin/voice.md` and fill it in, or paste three of your own posts
-into Claude and say "write my voice.md from these". Every skill reads that
-file. Skip it and everything comes out sounding like everyone else.
+### Antigravity
+
+Clone the repo and open it as a workspace — skills are auto-discovered via
+`.agents/skills/` symlinks:
+
+```bash
+git clone https://github.com/Jakeschincariol/linkedin-agent-skill.git
+cd linkedin-agent-skill
+# Skills are already linked in .agents/skills/ — just open this folder in AGY
+```
+
+Or install globally:
+
+```bash
+git clone https://github.com/Jakeschincariol/linkedin-agent-skill.git
+cp -r linkedin-agent-skill/skills/li-* ~/.gemini/config/skills/
+cp linkedin-agent-skill/templates/voice.md ~/.gemini/linkedin/voice.md
+```
+
+The repo includes a `GEMINI.md` rules file with overarching guidelines
+(always humanize, never post without approval, never fabricate).
+
+### OpenCode
+
+```bash
+git clone https://github.com/Jakeschincariol/linkedin-agent-skill.git
+cp -r linkedin-agent-skill/skills/li-* ~/.config/opencode/skills/
+cp linkedin-agent-skill/templates/voice.md ~/.config/opencode/linkedin/voice.md
+```
+
+Or clone the repo and open it as a workspace — skills are auto-discovered via
+the `.agents/skills/` directory.
+
+### Voice profile
+
+Then spend ten minutes on `templates/voice.md`. Copy it to your platform's
+config directory and fill it in:
+
+| platform | path |
+| --- | --- |
+| Claude Code | `~/.claude/linkedin/voice.md` |
+| Antigravity | `~/.gemini/linkedin/voice.md` |
+| OpenCode | `~/.config/opencode/linkedin/voice.md` |
+
+Or paste three of your own posts into your agent and say "write my voice.md
+from these". Every skill reads that file. Skip it and everything comes out
+sounding like everyone else.
 
 ## The eleven
 
-| command | what it does |
+| skill | what it does |
 | --- | --- |
-| `/li-post` | One idea into a post. Three hook options from [21 formulas](skills/li-post/hooks.json), one full draft, humanized before you see it. |
-| `/li-comment` | Comments on other people's posts. Nine types, picked by what the post actually is. Never "Great post!". |
-| `/li-reply` | The thread under your own post. Sorts every comment into lead / substance / peer / support / noise, then writes in that order. |
-| `/li-profile` | Scores your profile against a [12-part rubric](skills/li-profile/rubric.json) out of 100, then rewrites in fix-first order. |
-| `/li-plan` | The week. What to post, when to post it, and the 10 people to engage with. Writes `~/.claude/linkedin/plan.md`. |
-| `/li-human` | The humanizer. Two scripts that actually run. See below. |
-| `/li-carousel` | Document posts. Slide-by-slide copy, the cover that earns the swipe, and the PDF to upload. |
-| `/li-repurpose` | One video, newsletter or transcript into a week of posts that each stand alone. |
-| `/li-dm` | The 200-character invite note, the first message, and the two follow-ups. Two. |
-| `/li-inbox` | Triages the inbox into lead / recruiter / peer / ask / spam, and tells you which tell gave the sequence away. |
-| `/li-audit` | Post-mortem on what you have already published. Ranks by engagement rate and reach multiple, not impressions. |
+| `li-post` | One idea into a post. Three hook options from [21 formulas](skills/li-post/hooks.json), one full draft, humanized before you see it. |
+| `li-comment` | Comments on other people's posts. Nine types, picked by what the post actually is. Never "Great post!". |
+| `li-reply` | The thread under your own post. Sorts every comment into lead / substance / peer / support / noise, then writes in that order. |
+| `li-profile` | Scores your profile against a [12-part rubric](skills/li-profile/rubric.json) out of 100, then rewrites in fix-first order. |
+| `li-plan` | The week. What to post, when to post it, and the 10 people to engage with. |
+| `li-human` | The humanizer. Two scripts that actually run. See below. |
+| `li-carousel` | Document posts. Slide-by-slide copy, the cover that earns the swipe, and the PDF to upload. |
+| `li-repurpose` | One video, newsletter or transcript into a week of posts that each stand alone. |
+| `li-dm` | The 200-character invite note, the first message, and the two follow-ups. Two. |
+| `li-inbox` | Triages the inbox into lead / recruiter / peer / ask / spam, and tells you which tell gave the sequence away. |
+| `li-audit` | Post-mortem on what you have already published. Ranks by engagement rate and reach multiple, not impressions. |
 
 ## The humanizer
 
-`/li-human` ships two Python scripts with no dependencies. They run on your
+`li-human` ships two Python scripts with no dependencies. They run on your
 machine, on your text, and nothing is uploaded.
 
 ```bash
@@ -128,6 +185,16 @@ After `humanize.py`, with the flagged structures still unrewritten:
 
 The last stretch to PASS is the part the script deliberately leaves to you.
 
+## Platform compatibility
+
+| feature | Claude Code | Antigravity | OpenCode |
+| --- | --- | --- | --- |
+| Skill discovery | `~/.claude/skills/` or `.claude/skills/` | `.agents/skills/` or `~/.gemini/config/skills/` | `.agents/skills/` or `~/.config/opencode/skills/` |
+| Rules file | `CLAUDE.md` (included) | `GEMINI.md` (included) | `AGENTS.md` (included) |
+| Plugin system | `.claude-plugin/` (included) | — | — |
+| Voice profile | `~/.claude/linkedin/voice.md` | `~/.gemini/linkedin/voice.md` | `~/.config/opencode/linkedin/voice.md` |
+| Python tools | ✓ | ✓ | ✓ |
+
 ## The fine print, which is the honest part
 
 **These skills do not post to LinkedIn, and they should not.** There is no
@@ -165,6 +232,10 @@ skills/li-human/humanize.py      the three cleaning passes
 skills/li-human/detect.py        the five-check panel
 skills/li-profile/rubric.json    the 100-point profile score
 templates/voice.md               your voice profile. Fill this in first.
+.agents/skills/                  symlinks for Antigravity and OpenCode discovery
+AGENTS.md                        shared repo-level rules (symlinked via GEMINI.md and CLAUDE.md)
+.claude-plugin/                  plugin config for Claude Code
+install.sh                       cross-platform installer
 ```
 
 ## Credit

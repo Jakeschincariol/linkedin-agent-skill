@@ -14,8 +14,11 @@ gets executed. Run it once a week, on the same day.
 
 ## Input
 
-If `~/.claude/linkedin/voice.md` and `log.md` exist, read them - the plan
-should not repeat a theme from the last fortnight. If they do not exist, ask
+If the user's voice profile and log exist, read them - the plan should not
+repeat a theme from the last fortnight. Check these paths in order and use the
+first found: `~/.claude/linkedin/`, `~/.gemini/linkedin/`,
+`~/.config/opencode/linkedin/` (look for `voice.md` and `log.md` in each). If
+neither exists, ask
 for four things and write them down:
 
 1. What the user sells, and to whom.
@@ -90,5 +93,7 @@ ENGAGE  (5 reach / 3 peers / 2 buyers)
 Say "write Tuesday" and I will draft it.
 ```
 
-Write the plan to `~/.claude/linkedin/plan.md` so the other skills can read it.
+Write the plan to the linkedin config directory (check in order:
+`~/.claude/linkedin/plan.md`, `~/.gemini/linkedin/plan.md`,
+`~/.config/opencode/linkedin/plan.md`) so the other skills can read it.
 Nothing is scheduled or posted anywhere - this is a plan, and the user runs it.

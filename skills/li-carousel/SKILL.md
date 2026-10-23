@@ -19,7 +19,7 @@ Use a carousel when the idea has **sequence** - steps, a countdown, a
 before/after progression, a framework with parts. Use a text post when the
 idea is one claim. Splitting one claim across eight slides is the most common
 way carousels fail, and if that is what the user has, say so and hand them to
-`/li-post`.
+the `li-post` skill.
 
 ## Structure
 
@@ -66,6 +66,6 @@ skill or design system in this project, use it and do not invent a palette.
 The slide-by-slide copy first, as a numbered list the user can read in ten
 seconds. Then the accompanying **post text** - a carousel still needs 2-3
 lines above it, which is the actual hook in the feed. Run both through
-`/li-human`. Then build the PDF only if the user approves the copy.
+the `li-human` skill. Then build the PDF only if the user approves the copy.
 
 Nothing is uploaded to LinkedIn. The user posts the PDF themselves.

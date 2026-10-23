@@ -72,7 +72,7 @@ default blue gradient is the clearest signal on the page that nobody is home.
 ## Output
 
 Score table, then the rewrites as copy-ready blocks in fix-first order, each
-one already run through `/li-human`. Re-score at the end and show the delta
+one already run through the `li-human` skill. Re-score at the end and show the delta
 honestly - if the rewrite gets to 88 and not 98, say 88, and say what the
 remaining points need (usually recommendations, a real banner and posting
 history, none of which a rewrite can create).
