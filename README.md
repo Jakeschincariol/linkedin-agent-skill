@@ -190,7 +190,7 @@ The last stretch to PASS is the part the script deliberately leaves to you.
 | feature | Claude Code | Antigravity | OpenCode |
 | --- | --- | --- | --- |
 | Skill discovery | `~/.claude/skills/` or `.claude/skills/` | `.agents/skills/` or `~/.gemini/config/skills/` | `.agents/skills/` or `~/.config/opencode/skills/` |
-| Rules file | — | `GEMINI.md` (included) | `AGENTS.md` |
+| Rules file | `CLAUDE.md` (included) | `GEMINI.md` (included) | `AGENTS.md` (included) |
 | Plugin system | `.claude-plugin/` (included) | — | — |
 | Voice profile | `~/.claude/linkedin/voice.md` | `~/.gemini/linkedin/voice.md` | `~/.config/opencode/linkedin/voice.md` |
 | Python tools | ✓ | ✓ | ✓ |
@@ -233,7 +233,7 @@ skills/li-human/detect.py        the five-check panel
 skills/li-profile/rubric.json    the 100-point profile score
 templates/voice.md               your voice profile. Fill this in first.
 .agents/skills/                  symlinks for Antigravity and OpenCode discovery
-GEMINI.md                        repo-level rules for Antigravity
+AGENTS.md                        shared repo-level rules (symlinked via GEMINI.md and CLAUDE.md)
 .claude-plugin/                  plugin config for Claude Code
 install.sh                       cross-platform installer
 ```

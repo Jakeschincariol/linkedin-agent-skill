@@ -63,7 +63,7 @@ install_for_platform() {
   for skill in "${SKILLS[@]}"; do
     if [ -d "$SKILLS_DIR/$skill" ]; then
       cp -r "$SKILLS_DIR/$skill" "$target_skills/"
-      ((count++))
+      ((++count))
     fi
   done
 
@@ -82,7 +82,7 @@ install_for_platform() {
   fi
 
   echo ""
-  ((installed++))
+  ((++installed))
 }
 
 # Detect and install for each platform
