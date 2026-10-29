@@ -1,0 +1,303 @@
+{
+  "version": "1.0",
+  "note": "Arabic lexicon, merged into slop.json by humanize.py and detect.py. Matching ignores tashkeel and hamza forms on alef, and accepts a leading و or ف. A replace of \"\" deletes the phrase. A replace of null flags it without rewriting, because Arabic agreement (gender, case, word order) makes blind substitution ungrammatical - rewrite those lines by hand. Edit freely.",
+  "words": [
+    {
+      "find": "علاوة على ذلك",
+      "replace": "كذلك",
+      "family": "connectives"
+    },
+    {
+      "find": "بالإضافة إلى ذلك",
+      "replace": "كذلك",
+      "family": "connectives"
+    },
+    {
+      "find": "فضلا عن ذلك",
+      "replace": "كذلك",
+      "family": "connectives"
+    },
+    {
+      "find": "بشكل كبير",
+      "replace": "",
+      "family": "intensifiers"
+    },
+    {
+      "find": "بشكل ملحوظ",
+      "replace": "",
+      "family": "intensifiers"
+    },
+    {
+      "find": "بشكل فعال",
+      "replace": "",
+      "family": "intensifiers"
+    },
+    {
+      "find": "على حد سواء",
+      "replace": null,
+      "family": "connectives"
+    },
+    {
+      "find": "حجر الزاوية",
+      "replace": null,
+      "family": "metaphors"
+    },
+    {
+      "find": "حجر الأساس",
+      "replace": null,
+      "family": "metaphors"
+    },
+    {
+      "find": "نقلة نوعية",
+      "replace": null,
+      "family": "metaphors"
+    },
+    {
+      "find": "رحلة التحول",
+      "replace": null,
+      "family": "metaphors"
+    },
+    {
+      "find": "آفاق جديدة",
+      "replace": null,
+      "family": "metaphors"
+    },
+    {
+      "find": "آفاقا جديدة",
+      "replace": null,
+      "family": "metaphors"
+    },
+    {
+      "find": "الفرص الواعدة",
+      "replace": null,
+      "family": "adjectives"
+    },
+    {
+      "find": "مستقبل واعد",
+      "replace": null,
+      "family": "adjectives"
+    },
+    {
+      "find": "حلول مبتكرة",
+      "replace": null,
+      "family": "adjectives"
+    },
+    {
+      "find": "منظومة متكاملة",
+      "replace": null,
+      "family": "adjectives"
+    },
+    {
+      "find": "بيئة ديناميكية",
+      "replace": null,
+      "family": "adjectives"
+    },
+    {
+      "find": "دورا محوريا",
+      "replace": null,
+      "family": "adjectives"
+    },
+    {
+      "find": "دورا حيويا",
+      "replace": null,
+      "family": "adjectives"
+    },
+    {
+      "find": "دورا رئيسيا",
+      "replace": null,
+      "family": "adjectives"
+    },
+    {
+      "find": "بالغ الأهمية",
+      "replace": null,
+      "family": "adjectives"
+    },
+    {
+      "find": "لا غنى عنه",
+      "replace": null,
+      "family": "adjectives"
+    },
+    {
+      "find": "يعد",
+      "replace": null,
+      "family": "verbs"
+    },
+    {
+      "find": "تعد",
+      "replace": null,
+      "family": "verbs"
+    },
+    {
+      "find": "يعتبر",
+      "replace": null,
+      "family": "verbs"
+    },
+    {
+      "find": "تعتبر",
+      "replace": null,
+      "family": "verbs"
+    },
+    {
+      "find": "دعونا نتعمق",
+      "replace": null,
+      "family": "calques"
+    },
+    {
+      "find": "دعونا نستكشف",
+      "replace": null,
+      "family": "calques"
+    },
+    {
+      "find": "دعونا نغوص",
+      "replace": null,
+      "family": "calques"
+    },
+    {
+      "find": "الغوص في أعماق",
+      "replace": null,
+      "family": "calques"
+    }
+  ],
+  "phrases": [
+    {
+      "find": "في عالمنا المتسارع",
+      "replace": "",
+      "family": "openers"
+    },
+    {
+      "find": "في عالم اليوم المتسارع",
+      "replace": "",
+      "family": "openers"
+    },
+    {
+      "find": "في ظل التطورات المتسارعة",
+      "replace": "",
+      "family": "openers"
+    },
+    {
+      "find": "في ظل التطورات المتلاحقة",
+      "replace": "",
+      "family": "openers"
+    },
+    {
+      "find": "في ظل التحولات المتسارعة",
+      "replace": "",
+      "family": "openers"
+    },
+    {
+      "find": "في عصرنا الحالي",
+      "replace": "اليوم",
+      "family": "openers"
+    },
+    {
+      "find": "في العصر الرقمي",
+      "replace": "اليوم",
+      "family": "openers"
+    },
+    {
+      "find": "في عصر التحول الرقمي",
+      "replace": "اليوم",
+      "family": "openers"
+    },
+    {
+      "find": "مما لا شك فيه أن",
+      "replace": "",
+      "family": "hedges"
+    },
+    {
+      "find": "مما لا شك فيه",
+      "replace": "",
+      "family": "hedges"
+    },
+    {
+      "find": "لا شك في أن",
+      "replace": "",
+      "family": "hedges"
+    },
+    {
+      "find": "لا شك أن",
+      "replace": "",
+      "family": "hedges"
+    },
+    {
+      "find": "لا يخفى على أحد أن",
+      "replace": "",
+      "family": "hedges"
+    },
+    {
+      "find": "من المعروف أن",
+      "replace": "",
+      "family": "hedges"
+    },
+    {
+      "find": "تجدر الإشارة إلى أن",
+      "replace": "",
+      "family": "hedges"
+    },
+    {
+      "find": "من الجدير بالذكر أن",
+      "replace": "",
+      "family": "hedges"
+    },
+    {
+      "find": "ومن هنا تبرز أهمية",
+      "replace": null,
+      "family": "transitions"
+    },
+    {
+      "find": "من هذا المنطلق",
+      "replace": null,
+      "family": "transitions"
+    },
+    {
+      "find": "يسعدني أن أعلن",
+      "replace": null,
+      "family": "linkedin"
+    },
+    {
+      "find": "يسعدني ويشرفني",
+      "replace": null,
+      "family": "linkedin"
+    },
+    {
+      "find": "بكل فخر واعتزاز",
+      "replace": null,
+      "family": "linkedin"
+    },
+    {
+      "find": "لا يسعني إلا أن",
+      "replace": null,
+      "family": "linkedin"
+    },
+    {
+      "find": "في الختام",
+      "replace": null,
+      "family": "closers"
+    },
+    {
+      "find": "ختاما",
+      "replace": null,
+      "family": "closers"
+    }
+  ],
+  "structures": [
+    {
+      "id": "ar-laysa-mujarrad",
+      "name": "\"ليس مجرد X، بل Y\"",
+      "regex": "ليس(?:ت)?\\s+مجرد[^.!؟\\n]{2,60}[،,]?\\s*بل\\s",
+      "fix": "Say Y directly. The 'not just X' half is padding."
+    },
+    {
+      "id": "ar-laysa-faqat",
+      "name": "\"ليس فقط X بل أيضا Y\"",
+      "regex": "ليس\\s+فقط[^.!؟\\n]{2,80}بل\\s+(?:أيضا|أيضًا|أيضاً)",
+      "fix": "Pick the stronger half and drop the other."
+    },
+    {
+      "id": "ar-engagement-bait",
+      "name": "Reflex engagement bait (ما رأيكم؟ / شاركونا آراءكم)",
+      "regex": "(?:ما\\s+رأيكم\\s*[؟?]|شاركونا\\s+(?:آراءكم|رأيكم)|هل\\s+تتفقون\\s*[؟?])\\s*$",
+      "fix": "Ask something specific only you could ask, or end on the point."
+    }
+  ]
+}
