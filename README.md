@@ -13,6 +13,10 @@ the em dashes, the slop vocabulary and the invisible watermark characters out
 of a draft, then scores what is left against a five-check detection panel
 before you ever see it.
 
+The humanizer handles Arabic as well as English: an Arabic slop lexicon,
+`،` instead of a Latin comma, and Arabic-aware scoring. See
+[li-human](skills/li-human/SKILL.md#arabic).
+
 **Nothing gets posted until you say yes.** These skills write. You post.
 
 ## Install

@@ -44,6 +44,27 @@ testament to, moreover, "in today's fast-paced world", "let that sink in" and
 the rest, each swapped for a plain word, with capitalisation preserved and
 URLs left untouched.
 
+## Arabic
+
+`slop_ar.json` sits next to `slop.json` and both scripts merge it in. For
+Arabic text:
+
+- The em dash becomes the Arabic comma `،` (decided by the letters on either
+  side, so `Claude Code — وهو` gets `،` too), and stray Latin commas between
+  Arabic words are converted.
+- Bidi marks (LRM, RLM, ALM) are kept. Mixed Arabic-English lines need them.
+- Matching ignores tashkeel and hamza forms on alef, and accepts a leading
+  و or ف, so `دورًا محوريًا`, `دوراً محورياً` and `ودورا محوريا` all hit.
+- Only safe edits are automatic: openers and hedges like `في عالمنا المتسارع`
+  and `لا شك أن` are deleted, `علاوة على ذلك` becomes `كذلك`. Most Arabic
+  stock phrases (`حجر الزاوية`, `نقلة نوعية`, `يُعدّ`, `ختامًا`) are
+  **flagged, not rewritten**, because gender and case agreement make blind
+  substitution ungrammatical. Expect `humanize.py` alone to barely move an
+  Arabic score; the flagged list is the work.
+- `detect.py` drops the contraction term from VOICE and lowers the
+  SPECIFICITY bar for Arabic (no capitals means names go uncounted). Arabic
+  scores are a rougher signal than English ones. Say so.
+
 ## What does NOT get fixed automatically
 
 Structural tells get **flagged, not rewritten**, because changing the shape of

@@ -14,6 +14,12 @@ Three passes, in this order:
   3. LEXICAL     replace the slop lexicon in slop.json with plain words,
                  preserving capitalisation and leaving URLs untouched.
 
+Arabic: slop_ar.json is merged in when it sits next to this file. In Arabic
+text the em dash becomes the Arabic comma (،), stray Latin commas between
+Arabic words are converted, and bidi marks (LRM/RLM/ALM) are kept because
+mixed Arabic-English lines need them. Arabic entries whose replace is null are
+flagged, not rewritten - agreement makes blind substitution ungrammatical.
+
 Structural tells (rule-of-three, "not just X, it's Y", hashtag walls) are
 REPORTED, never auto-rewritten - rewriting a sentence's shape needs judgement,
 so that is the model's job, not a regex's.
@@ -35,14 +41,47 @@ import unicodedata
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 LEX = os.path.join(HERE, "slop.json")
+LEX_AR = os.path.join(HERE, "slop_ar.json")
 
 URL_RE = re.compile(r"https?://\S+|www\.\S+|\S+@\S+\.\S+")
-SENT_RE = re.compile(r"[^.!?\n]+[.!?]*")
+SENT_RE = re.compile(r"[^.!?؟\n]+[.!?؟]*")
+
+AR_LETTER = "\u0621-\u064A\u066E-\u06D3"
+AR_RE = re.compile(f"[{AR_LETTER}]")
+TASHKEEL = "[\u064B-\u0652\u0670\u0640]*"
+BIDI_MARKS = {0x200E, 0x200F, 0x061C}
+
+
+def is_arabic(text):
+    return bool(AR_RE.search(text))
 
 
 def load_lexicon(path=LEX):
     with open(path, encoding="utf-8") as fh:
-        return json.load(fh)
+        lex = json.load(fh)
+    if os.path.exists(LEX_AR):
+        with open(LEX_AR, encoding="utf-8") as fh:
+            ar = json.load(fh)
+        for key in ("words", "phrases", "structures"):
+            lex[key] = lex[key] + ar.get(key, [])
+    return lex
+
+
+def lex_pattern(find):
+    """English: word-bounded, case-insensitive. Arabic: ignores tashkeel and
+    alef hamza forms, and captures an optional leading و/ف as group 1."""
+    if not is_arabic(find):
+        return re.compile(r"()\b" + re.escape(find).replace(r"\ ", r"\s+") + r"\b",
+                          re.IGNORECASE)
+    parts = []
+    for ch in find:
+        if ch == " ":
+            parts.append(r"\s+")
+        elif ch in "اأإآ":
+            parts.append("[اأإآ]" + TASHKEEL)
+        else:
+            parts.append(re.escape(ch) + TASHKEEL)
+    return re.compile(r"(?<!\w)([وف]?)" + "".join(parts) + r"(?!\w)")
 
 
 def _cp(spec):
@@ -73,8 +112,11 @@ def restore_urls(text, found):
 def pass_invisible(text, lex):
     """Delete or space-normalise invisible characters. Returns (text, hits)."""
     hits = []
+    keep = BIDI_MARKS if is_arabic(text) else set()
     for entry in lex["invisible"]:
         cp = _cp(entry["cp"])
+        if cp in keep:
+            continue
         if isinstance(cp, tuple):
             pattern = "[" + re.escape(chr(cp[0])) + "-" + re.escape(chr(cp[1])) + "]"
         else:
@@ -85,12 +127,21 @@ def pass_invisible(text, lex):
                          "action": entry["action"]})
             text = re.sub(pattern, "" if entry["action"] == "delete" else " ", text)
     # Any remaining Cf (format) character is invisible by definition.
-    stray = [c for c in text if unicodedata.category(c) == "Cf"]
+    drop = lambda c: unicodedata.category(c) == "Cf" and ord(c) not in keep
+    stray = [c for c in text if drop(c)]
     if stray:
         hits.append({"name": "other invisible format chars", "count": len(stray),
                      "action": "delete"})
-        text = "".join(c for c in text if unicodedata.category(c) != "Cf")
+        text = "".join(c for c in text if not drop(c))
     return text, hits
+
+
+def _comma_for(text, start, end):
+    """Arabic comma if the nearest letter on either side is Arabic, so
+    "Claude Code — وهو" still gets ، inside an Arabic sentence."""
+    before = next((c for c in reversed(text[max(0, start - 40):start]) if c.isalpha()), "")
+    after = next((c for c in text[end:end + 40] if c.isalpha()), "")
+    return "، " if AR_RE.match(before) or AR_RE.match(after) else ", "
 
 
 def pass_typographic(text, lex):
@@ -100,19 +151,26 @@ def pass_typographic(text, lex):
         n = text.count(ch)
         if not n:
             continue
-        hits.append({"name": f"{ch} {entry['name']}", "count": n, "to": entry["to"].strip() or "(space)"})
+        to = "، / ," if ch in "—–" and is_arabic(text) else entry["to"].strip() or "(space)"
+        hits.append({"name": f"{ch} {entry['name']}", "count": n, "to": to})
         if ch == "—":
             # " word — word " and "word—word" both collapse to a comma + space.
-            text = re.sub(r"\s*—\s*", ", ", text)
+            text = re.sub(r"\s*—\s*", lambda m: _comma_for(m.string, m.start(), m.end()), text)
         elif ch == "–":
             text = re.sub(r"\s*–\s*(?=\d)", "-", text)      # 5–10  -> 5-10
-            text = re.sub(r"\s+–\s+", ", ", text)            # used as em dash
+            text = re.sub(r"\s+–\s+", lambda m: _comma_for(m.string, m.start(), m.end()), text)
             text = text.replace("–", "-")
         else:
             text = text.replace(ch, entry["to"])
+    # A Latin comma between Arabic words: Arabic keyboards type ،.
+    latin = re.compile(rf"(?<=[{AR_LETTER}])[ \t]*,[ \t]*(?=[{AR_LETTER}])")
+    n = len(latin.findall(text))
+    if n:
+        hits.append({"name": ", LATIN COMMA IN ARABIC", "count": n, "to": "،"})
+        text = latin.sub("، ", text)
     # A comma inserted before existing punctuation reads wrong.
-    text = re.sub(r",\s*([,.;:!?])", r"\1", text)
-    text = re.sub(r",\s*\n", "\n", text)
+    text = re.sub(r"[,،]\s*([,،.;؛:!?؟])", r"\1", text)
+    text = re.sub(r"[,،]\s*\n", "\n", text)
     return text, hits
 
 
@@ -126,32 +184,57 @@ def _match_case(src, repl):
     return repl
 
 
+def _sub_entry(m, replace):
+    prefix, word = m.group(1), m.group(0)[len(m.group(1)):]
+    if not replace and prefix:
+        return prefix + "\x01"          # و/ف re-attaches to the next word
+    if not replace and is_arabic(word):
+        return "\x02"                   # marks a deletion, see pass_lexical
+    return prefix + _match_case(word, replace)
+
+
 def pass_lexical(text, lex):
-    """Replace slop words and phrases. Longest first so phrases win."""
-    hits = []
+    """Replace slop words and phrases. Longest first so phrases win.
+    Entries with replace null are flagged, not rewritten. Returns
+    (text, hits, flagged)."""
+    hits, flagged, taken = [], [], []
     entries = sorted(lex["phrases"] + lex["words"],
                      key=lambda e: len(e["find"]), reverse=True)
     for entry in entries:
-        find = entry["find"]
-        pattern = re.compile(r"\b" + re.escape(find).replace(r"\ ", r"\s+") + r"\b",
-                             re.IGNORECASE)
+        if entry["replace"] is None:
+            continue
+        pattern = lex_pattern(entry["find"])
         found = pattern.findall(text)
         if not found:
             continue
-        hits.append({"find": find, "replace": entry["replace"] or "(deleted)",
+        hits.append({"find": entry["find"], "replace": entry["replace"] or "(deleted)",
                      "count": len(found), "family": entry["family"]})
-        text = pattern.sub(lambda m: _match_case(m.group(0), entry["replace"]), text)
+        text = pattern.sub(lambda m: _sub_entry(m, entry["replace"]), text)
+    text = re.sub("\x01\\s*", "", text)
+    text = re.sub("(?m)^\x02[ \t]*", "", text)
+    text = text.replace("\x02", "")
+    # Flag-only entries, after rewriting so spans are final. No double counts.
+    for entry in entries:
+        if entry["replace"] is not None:
+            continue
+        spans = [m.span() for m in lex_pattern(entry["find"]).finditer(text)
+                 if not any(a < m.end() and m.start() < b for a, b in taken)]
+        if spans:
+            taken += spans
+            flagged.append({"find": entry["find"], "count": len(spans),
+                            "family": entry["family"]})
     # Clean up after deletions.
     text = re.sub(r"[ \t]{2,}", " ", text)
-    text = re.sub(r"(?m)^[ \t]*([,.;:])\s*", "", text)
-    text = re.sub(r"\s+([,.;:!?])", r"\1", text)
+    text = re.sub(r"(?m)^[ \t]*([,.;:،؛])\s*", "", text)
+    text = re.sub(r"([.!?؟])[ \t]*[,،][ \t]*", r"\1 ", text)
+    text = re.sub(r"\s+([,.;:!?،؛؟])", r"\1", text)
     text = re.sub(r"(?m)^[ \t]+$", "", text)
     text = re.sub(r"\n{3,}", "\n\n", text)
     # An em dash that became a comma, followed by a sentence connective, leaves
     # a splice ("is important, also, it's proof"). Promote it to a full stop.
     text = re.sub(r",\s*(also|so|still|basically|in the end)\s*,\s*",
                   lambda m: ". " + m.group(1)[0].upper() + m.group(1)[1:] + ", ", text)
-    return text, hits
+    return text, hits, flagged
 
 
 def scan_structures(text, lex):
@@ -183,12 +266,13 @@ def humanize(text, lex):
     text, urls = protect_urls(text)
     text, inv = pass_invisible(text, lex)
     text, typo = pass_typographic(text, lex)
-    text, lexi = pass_lexical(text, lex)
+    text, lexi, flagged = pass_lexical(text, lex)
     text = restore_urls(text, urls)
     return text.strip() + "\n", {
         "invisible": inv,
         "typographic": typo,
         "lexical": lexi,
+        "flagged": flagged,
         "structures": scan_structures(text, lex),
     }
 
@@ -203,7 +287,8 @@ def render_report(report, out=sys.stderr):
 
     head("HUMANIZE REPORT")
     print(f"{total} machine artefacts removed, "
-          f"{len(report['structures'])} structural tells flagged for rewrite", file=out)
+          f"{len(report['structures'])} structural tells and "
+          f"{len(report['flagged'])} stock phrases flagged for rewrite", file=out)
 
     if report["invisible"]:
         head("1. INVISIBLE CHARACTERS")
@@ -217,8 +302,12 @@ def render_report(report, out=sys.stderr):
         head("3. SLOP LEXICON")
         for h in report["lexical"]:
             print(f"  {h['count']:>3}x  {h['find']}  -> {h['replace']}   [{h['family']}]", file=out)
+    if report["flagged"]:
+        head("4. STOCK PHRASES  (not auto-fixed - rewrite these yourself)")
+        for h in report["flagged"]:
+            print(f"  {h['count']:>3}x  {h['find']}   [{h['family']}]", file=out)
     if report["structures"]:
-        head("4. STRUCTURAL TELLS  (not auto-fixed - rewrite these yourself)")
+        head("5. STRUCTURAL TELLS  (not auto-fixed - rewrite these yourself)")
         for h in report["structures"]:
             print(f"  {h['count']:>3}x  {h['name']}\n        {h['fix']}", file=out)
     if not any(report.values()):
