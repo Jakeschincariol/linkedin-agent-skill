@@ -1,6 +1,6 @@
 # The LinkedIn agent skill
 
-Eleven Claude skills that run a LinkedIn account. Free, MIT, no signup, no API
+Thirteen Claude skills that run a LinkedIn account. Free, MIT, no signup, no API
 key, nothing to connect.
 
 One of them writes your posts off 21 hook formulas. One comments on other
@@ -44,12 +44,14 @@ Project-local instead of global: copy the same folders into your repo's
 top of a chat and it runs as a mode - you lose the two Python tools, which is
 most of the point of `/li-human`, but the rest works.
 
-Then spend ten minutes on `templates/voice.md`. Copy it to
-`~/.claude/linkedin/voice.md` and fill it in, or paste three of your own posts
-into Claude and say "write my voice.md from these". Every skill reads that
-file. Skip it and everything comes out sounding like everyone else.
+Start with `/li-positioning` to define your target audience and point of view,
+then provide at least three writing samples for a voice guide. It maintains
+`~/.claude/linkedin/positioning.md` and `voice.md`. The new
+`/li-hr-thought-leadership` reads approved positioning and voice context;
+existing compatible skills such as `/li-post` use `voice.md`. You can also
+use `templates/voice.md` as a worksheet.
 
-## The eleven
+## The thirteen
 
 | command | what it does |
 | --- | --- |
@@ -64,6 +66,13 @@ file. Skip it and everything comes out sounding like everyone else.
 | `/li-dm` | The 200-character invite note, the first message, and the two follow-ups. Two. |
 | `/li-inbox` | Triages the inbox into lead / recruiter / peer / ask / spam, and tells you which tell gave the sequence away. |
 | `/li-audit` | Post-mortem on what you have already published. Ranks by engagement rate and reach multiple, not impressions. |
+| `/li-positioning` | Collects and maintains your target audience, POV, content pillars, voice, and user-approved evidence bank. |
+| `/li-hr-thought-leadership` | Turns real HR leadership experience into supportable thought-leadership ideas and drafts. |
+
+Tailored ideas and drafts wait until the target audience and writing samples
+are clear. The skills do not infer an audience, invent a voice, or treat
+unconfirmed profile metrics as proof. The existing install command copies all
+`skills/li-*` folders, including these two.
 
 ## The humanizer
 
