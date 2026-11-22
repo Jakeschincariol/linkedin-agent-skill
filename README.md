@@ -175,3 +175,20 @@ The full write-up is at [opusjake.ai/r/linkedin-agent](https://opusjake.ai/r/lin
 ## License
 
 MIT. Take it, change it, ship it.
+
+
+## Advanced growth workspace (fork extension)
+
+This fork adds a local-first growth workspace while preserving all eleven original skills.
+
+- Seven-post weekly editorial target with timezone-aware scheduling metadata.
+- SQLite draft queue with explicit approval state; approval does **not** publish.
+- Outreach CRM for recruiters, senior professionals and peers, with manually logged touchpoints and follow-up dates.
+- Analytics ledger with CSV import and a summary report.
+- No scraping, browser automation, automated DMs, connection requests or publishing.
+
+See [growth workspace documentation](growth_agent/README.md), [default configuration](config/growth.toml), and the [Python CLI](growth_agent/app.py).
+
+Quick start: `python -m growth_agent.app init`. Requires Python 3.10+ and uses only the standard library. Run tests with `python -m unittest discover -s tests -v`.
+
+All external actions remain manual and user-controlled. The weekly target is a planning target, not a publishing instruction.

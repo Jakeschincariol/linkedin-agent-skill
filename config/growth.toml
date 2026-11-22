@@ -1,0 +1,16 @@
+# Planning defaults. These values guide the workflow; they do not trigger external actions.
+[content]
+posts_per_week = 7
+timezone = "Asia/Kolkata"
+approval_required = true
+auto_publish = false
+
+[outreach]
+tracking_enabled = true
+auto_send = false
+default_follow_up_days = 7
+allowed_categories = ["recruiter", "senior", "peer", "hiring-manager"]
+
+[analytics]
+enabled = true
+source = "manual_csv"
